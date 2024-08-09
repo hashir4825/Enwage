@@ -22,6 +22,7 @@ namespace Enwage.Models
         public bool RateFlag { get; set; }
         public string? Gender { get; set; }
         public int ClientId { get; set; }
+        public int? NoOfFiles { get; set; }
 
         public virtual Client Client { get; set; } = null!;
         public virtual ICollection<Attachment> Attachments { get; set; }

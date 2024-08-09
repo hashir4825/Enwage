@@ -14,6 +14,7 @@ export class EmployeeService {
 
   pageChange = new EventEmitter<{ pageNumber: number, pageSize: number }>();
 
+  public onCreateAndUpdate = new EventEmitter<boolean>();
 
 
   constructor(private http: HttpClient) {}

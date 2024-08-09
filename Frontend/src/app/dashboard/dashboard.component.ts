@@ -47,6 +47,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.loadEmployees();
       });
     this.loadEmployees();
+
+    this.myEmployeeService.onCreateAndUpdate.subscribe(data=>{
+      if(data==true)
+      {
+        this.loadEmployees()
+      }
+    })
   }
 
   ngOnDestroy(): void {
@@ -71,6 +78,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .subscribe((data) => {
         this.employees = data.employees;
         const totalRows = data.totalNumberOfRows;
+        console.log(this.employees);
+        
 
         // Now directly call the calculateTotalPages method on the pagination component instance
         this.paginationComponent.calculateTotalPages(totalRows);

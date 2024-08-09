@@ -13,6 +13,7 @@ export interface Employee {
     clientId: number;
     employeestates: EmployeeState[];
     attachments?: Attachment[]; // Optional field
+    noOfFiles: number; // Add this field
   }
   
   export interface EmployeeState {

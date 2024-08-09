@@ -51,9 +51,6 @@
             </button>
           </th>
           <th scope="col" class="px-6 py-3 font-medium">Years Of Experience
-            <button (click)="sortColumn('yearsOfExperience')">
-              <img class="ml-2 h-2 w-2" [src]="getSortIcon('YearsOfExperience')" alt="Sort">
-            </button>
           </th>
           <th scope="col" class="px-6 py-3 font-medium">Gender
             <button (click)="sortColumn('Gender')">
@@ -65,10 +62,9 @@
               <img class="ml-2 h-2 w-2" [src]="getSortIcon('Rate')" alt="Sort">
             </button>
           </th>
+          <th scope="col" class="px-6 py-3 font-medium">No of Files
+          </th>
           <th scope="col" class="px-6 py-3 font-medium">Action
-            <button (click)="sortColumn('action')">
-              <img class="ml-2 h-2 w-2" [src]="getSortIcon('action')" alt="Sort">
-            </button>
           </th>
         </tr>
         
@@ -93,6 +89,8 @@
           <td class="px-6 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ employee.gender }}</td>
           <td class="px-6 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
             {{ formatRate(employee.rate, employee.rateFlag) }}</td>
+          <td class="px-6 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ employee.noOfFiles }}</td>
+
 
           <td class="px-6 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"><button class="ml-9"
               (click)="setDrawerState(true)"  (click)="onEdit(employee.id)"  class="bg-gray-200 rounded-xl"><img src="assets/editicon.png"

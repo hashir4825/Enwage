@@ -13,7 +13,7 @@ export class PagenationComponent implements OnInit {
     
   }
   @Input() currentPage: number=1;
-  @Input() pageSize: number =2;
+  @Input() pageSize: number =5;
   // @Output() pageChange = new EventEmitter<{ pageNumber: number, pageSize: number }>();
 
   totalRows = 0;

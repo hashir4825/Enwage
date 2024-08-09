@@ -100,6 +100,8 @@ namespace Enwage.Models
                     .HasMaxLength(255)
                     .HasColumnName("name");
 
+                entity.Property(e => e.NoOfFiles).HasColumnName("No_of_Files");
+
                 entity.Property(e => e.Rate)
                     .HasPrecision(10, 2)
                     .HasColumnName("rate");

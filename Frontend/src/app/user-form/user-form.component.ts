@@ -27,13 +27,13 @@ export class UserFormComponent implements OnInit {
   clients: Client[] = [];
   states: State[] = [];
 
-  
+
   loadStates(): void {
     this.dropdownDataService.getAllStates().subscribe({
       next: (resp) => {
         this.states = resp;
       },
-      error: (err)  => {
+      error: (err) => {
 
       }
     });
@@ -42,7 +42,7 @@ export class UserFormComponent implements OnInit {
   loadClients(): void {
     this.dropdownDataService.getAllClients().subscribe(
       (data: Client[]) => {
-        this.clients = data;        
+        this.clients = data;
       },
       error => {
         console.error('Error fetching clients', error);
@@ -55,14 +55,14 @@ export class UserFormComponent implements OnInit {
   isPresent: boolean = false;
   isPercentage: boolean = false;
   presentDate: string = new Date().toISOString().split('T')[0]; // Default to today's date
-  targetEmployee:Employee;
+  targetEmployee: Employee;
 
   constructor(
     private fb: FormBuilder,
     private dropdownDataService: DropdownDataService,
     private employeeService: EmployeeService, // Inject the service
     private myservice: UserServiceService
-  ) {}
+  ) { }
 
   private subscriptions: Subscription = new Subscription();
 
@@ -72,13 +72,13 @@ export class UserFormComponent implements OnInit {
 
     this.subscriptions.add(
       this.employeeService.refreshEmployees$.subscribe(() => {
-        this.targetEmployee = this.employeeService.employeeToBeEdited ;
-        console.log("I AM",this.targetEmployee);
+        this.targetEmployee = this.employeeService.employeeToBeEdited;
+        console.log("I AM", this.targetEmployee);
         this.populateForm();
-        
+
       })
     );
-  
+
     this.form = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -90,21 +90,22 @@ export class UserFormComponent implements OnInit {
       yearsExperience: [{ value: '', disabled: true }],
       rate: ['', [Validators.required]],
       gender: [''],
+      rateFlag: [false],
       fileUpload: [null]
     }, { validators: this.experienceDateValidator() });
-    
-  
+
+
     this.updateRateValidators();
-  
+
     this.form.get('rate')?.valueChanges.subscribe(value => {
       this.updateRateValidators();
     });
-  
+
     this.form.get('experienceStart')?.valueChanges.subscribe(() => this.calculateExperience());
     this.form.get('experienceEnd')?.valueChanges.subscribe(() => this.calculateExperience());
     this.form.get('isPresent')?.valueChanges.subscribe(() => this.calculateExperience());
   }
-  
+
 
   @Input() isDrawerOpen: boolean;
   @Output() closeDrawer = new EventEmitter<boolean>();
@@ -116,6 +117,22 @@ export class UserFormComponent implements OnInit {
     this.isDrawerOpen = !this.isDrawerOpen;
     this.closeDrawer.emit(this.isDrawerOpen); // Emit false to indicate closing the drawer
     console.log("From form component", this.isDrawerOpen);
+
+    // Resetting values
+    this.targetEmployee = null;
+    this.employeeService.employeeToBeEdited = null;
+    // console.log(this.form.value);
+    this.isPercentage = false;
+    const percentageCheckbox = document.getElementById('changeState') as HTMLInputElement;
+    percentageCheckbox.checked = false;
+
+    const dateCheckbox = document.getElementById('isPresent') as HTMLInputElement;
+    dateCheckbox.checked = false;
+    this.form.reset();
+    this.selectedFiles = [];
+    this.filesWithImages = [];
+    // console.log(this.form.value);
+
   }
   updateRateValidators(): void {
     const rateControl = this.form.get('rate');
@@ -126,8 +143,8 @@ export class UserFormComponent implements OnInit {
     }
     rateControl?.updateValueAndValidity({ emitEvent: false }); // Avoid recursive updates
   }
-  
-  
+
+
   togglePresent(event: any): void {
     this.isPresent = event.target.checked;
     const experienceEndControl = this.form.get('experienceEnd');
@@ -141,10 +158,10 @@ export class UserFormComponent implements OnInit {
   }
 
   onPercentageChange(event: Event): void {
-    const input = event.target as HTMLInputElement;    
+    const input = event.target as HTMLInputElement;
     this.isPercentage = input.checked;
     console.log(this.isPercentage);
-    
+
     this.updateRateValidators();
   }
 
@@ -160,17 +177,19 @@ export class UserFormComponent implements OnInit {
   onSubmit(): void {
     if (this.form.valid) {
       const formValue = this.form.value;
-  
+      const noOfFiles = this.filesWithImages.length;
+
+
       // Ensure the experienceEnd value is set correctly based on isPresent state
       if (this.isPresent) {
         formValue.experienceEnd = new Date().toISOString(); // Set to the current date in UTC
       }
-  
+
       // Convert dates to UTC
       const dobUTC = new Date(formValue.dob).toISOString();
       const experienceStartUTC = new Date(formValue.experienceStart).toISOString();
       const experienceEndUTC = new Date(formValue.experienceEnd).toISOString();
-  
+
       // Map form value to Employee model
       const employee: Employee = {
         id: this.targetEmployee ? this.targetEmployee.id : 0, // Adjust as needed
@@ -196,9 +215,10 @@ export class UserFormComponent implements OnInit {
           type: fileWithImage.type,
           employeeId: this.targetEmployee ? this.targetEmployee.id : 0, // Assuming it will be assigned by the backend
           baseCode: fileWithImage.base64 || '' // Add base64 encoding if needed
-        }))
+        })),
+        noOfFiles: noOfFiles // Set the number of files here
       };
-  
+
       // Check if updating or creating an employee
       if (this.targetEmployee) {
         // Update existing employee
@@ -208,9 +228,11 @@ export class UserFormComponent implements OnInit {
               'Success!',
               'Employee updated successfully.',
               'success',
-              
+
             );
-            this.closeDrawer.emit(false); // Emit false to indicate closing the drawer
+            this.employeeService.onCreateAndUpdate.emit(true);
+            this.onCloseDrawer();
+            // this.closeDrawer.emit(false); // Emit false to indicate closing the drawer
 
             this.isPercentage = false;
           },
@@ -231,7 +253,10 @@ export class UserFormComponent implements OnInit {
               'Employee created successfully.',
               'success'
             );
-            this.closeDrawer.emit(false); // Emit false to indicate closing the drawer
+            this.employeeService.onCreateAndUpdate.emit(true);
+            this.onCloseDrawer();
+            window.location.reload();
+            // this.closeDrawer.emit(false); // Emit false to indicate closing the drawer
             this.isPercentage = false;
           },
           (error) => {
@@ -247,9 +272,9 @@ export class UserFormComponent implements OnInit {
       console.log('Form is invalid');
     }
   }
-  
-  
-  
+
+
+
 
   browseFiles(): void {
     document.getElementById('file-upload')?.click();
@@ -281,15 +306,14 @@ export class UserFormComponent implements OnInit {
     });
   }
 
-  removeFile(file: FileWithImage): void {
-    this.filesWithImages = this.filesWithImages.filter(
-      (f) => f.file !== file.file
-    );
+  removeFile(fileToRemove: FileWithImage): void {
+    this.filesWithImages = this.filesWithImages.filter(file => file !== fileToRemove);
   }
+  
 
-  getFileUploadControlValue() {
-    return this.form.get('fileUpload')?.value;
-  }
+  // getFileUploadControlValue() {
+  //   return this.form.get('fileUpload')?.value;
+  // }
 
   onCancel(): void {
     // Handle cancel logic here
@@ -300,28 +324,28 @@ export class UserFormComponent implements OnInit {
   calculateExperience(): void {
     const start = this.form.get('experienceStart')?.value;
     const end = this.isPresent ? this.presentDate : this.form.get('experienceEnd')?.value;
-  
+
     if (start && end) {
       const startDate = new Date(start);
       const endDate = new Date(end);
-  
+
       let years = endDate.getFullYear() - startDate.getFullYear();
       let months = endDate.getMonth() - startDate.getMonth();
-  
+
       if (months < 0) {
         years--;
         months += 12;
       }
-  
+
       // Construct experience string
       const experience = `${years} years ${months} months`;
       this.form.get('yearsExperience')?.setValue(experience, { emitEvent: false });
       console.log(this.form.get('yearsExperience').value);
-      
-      
+
+
     }
   }
-  
+
   populateForm(): void {
     if (this.targetEmployee) {
       this.form.patchValue({
@@ -334,8 +358,19 @@ export class UserFormComponent implements OnInit {
         experienceEnd: this.targetEmployee.experienceend ? new Date(this.targetEmployee.experienceend).toISOString().split('T')[0] : '',
         yearsExperience: this.targetEmployee.yearsOfExperience,
         rate: this.targetEmployee.rate,
-        gender: this.targetEmployee.gender
+        gender: this.targetEmployee.gender,
+        rateFlag: this.targetEmployee.rateFlag,
       });
+
+          // Set the isPercentage based on rateFlag
+    this.isPercentage = this.targetEmployee.rateFlag;
+
+    // Check or uncheck the checkbox based on isPercentage
+    const percentageCheckbox = document.getElementById('changeState') as HTMLInputElement;
+    if (percentageCheckbox) {
+      percentageCheckbox.checked = this.isPercentage;
+    }
+
 
       this.isPresent = !this.targetEmployee.experienceend;
       this.updateRateValidators();
@@ -365,61 +400,61 @@ export class UserFormComponent implements OnInit {
       console.error('No base64 data available for this file.');
     }
   }
-  
+
   // Helper function to convert base64 to Blob
   base64ToBlob(base64: string, mimeType: string): Blob {
     const byteCharacters = atob(base64);
     const byteArrays: Uint8Array[] = [];
-  
+
     for (let offset = 0; offset < byteCharacters.length; offset += 512) {
       const slice = byteCharacters.slice(offset, offset + 512);
-  
+
       const byteNumbers = new Array(slice.length);
       for (let i = 0; i < slice.length; i++) {
         byteNumbers[i] = slice.charCodeAt(i);
       }
-  
+
       const byteArray = new Uint8Array(byteNumbers);
       byteArrays.push(byteArray);
     }
-  
+
     return new Blob(byteArrays, { type: mimeType });
   }
- 
-  
+
+
   percentageValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       const value = control.value;
       return value && (value < 0 || value > 100) ? { invalidPercentage: true } : null;
     };
   }
-  
+
   hourlyRateValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       const value = control.value;
       return value && value <= 0 ? { invalidHourlyRate: true } : null;
     };
   }
-  
+
   experienceDateValidator(): ValidatorFn {
     return (formGroup: AbstractControl): ValidationErrors | null => {
       const experienceStart = formGroup.get('experienceStart')?.value;
       const experienceEnd = formGroup.get('experienceEnd')?.value;
-  
+
       if (experienceStart && experienceEnd) {
         const startDate = new Date(experienceStart);
         const endDate = new Date(experienceEnd);
-  
+
         if (endDate <= startDate) {
           return { invalidDateRange: true };
         }
       }
-  
+
       return null;
     };
   }
-  
-  
-  
-  
+
+
+
+
 }

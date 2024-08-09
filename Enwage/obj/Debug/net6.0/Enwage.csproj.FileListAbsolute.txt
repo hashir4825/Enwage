@@ -42,3 +42,4 @@ C:\Users\hiqbal\Desktop\Enwage\Enwage\obj\Debug\net6.0\refint\Enwage.dll
 C:\Users\hiqbal\Desktop\Enwage\Enwage\obj\Debug\net6.0\Enwage.pdb
 C:\Users\hiqbal\Desktop\Enwage\Enwage\obj\Debug\net6.0\Enwage.genruntimeconfig.cache
 C:\Users\hiqbal\Desktop\Enwage\Enwage\obj\Debug\net6.0\ref\Enwage.dll
+C:\Users\hiqbal\Desktop\Enwage\Enwage\obj\Debug\net6.0\Enwage.sourcelink.json
