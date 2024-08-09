@@ -1,0 +1,13 @@
+.th-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem; /* Adjust padding as needed */
+  }
+  
+  .sort-icon {
+    margin-left: 0.5rem; /* Adjust margin to add spacing between the text and the icon */
+    height: 1.25rem; /* Adjust size as needed */
+    width: auto;
+  }
+  
