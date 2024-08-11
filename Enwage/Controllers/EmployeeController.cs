@@ -137,6 +137,13 @@ namespace Enwage.Controllers
             return Ok(response);
 
         }
+        [HttpPost("update-state-counts")]
+        public async Task<IActionResult> UpdateEmployeeStateCounts()
+        {
+                await _employeeService.UpdateEmployeeStateCountsAsync();
+                return Ok("Employee state counts updated successfully.");
+        }
+
 
     }
 }

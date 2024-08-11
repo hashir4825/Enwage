@@ -44,6 +44,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       )
       .subscribe((term) => {
         this.searchQuery = term;
+        this.pageNumber=1;
         this.loadEmployees();
       });
     this.loadEmployees();

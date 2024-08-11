@@ -111,5 +111,19 @@ namespace Enwage.Properties.Services
             };
             return responseDto;
         }
+
+        public async Task UpdateEmployeeStateCountsAsync()
+        {
+            try
+            {
+                await _unitofWork._employeeRepository.UpdateEmployeeStateCountsAsync();
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new ApplicationException("An error occurred while updating employee state counts.", ex);
+            }
+        }
+
     }
 }

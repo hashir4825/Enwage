@@ -1,6 +1,6 @@
 import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { percentageValidator, hourlyRateValidator, experienceDateValidator } from '../custom-validators';
+// import { percentageValidator, hourlyRateValidator, experienceDateValidator } from '../custom-validators';
 import { DropdownDataService, Client, State } from '../Services/dropdown-data.service';
 import { EmployeeService } from '../Services/employee.service'; // Import your service
 import { Employee } from '../Models/Employee';
@@ -23,6 +23,7 @@ interface FileWithImage {
 })
 export class UserFormComponent implements OnInit {
 
+  no_of_states: number = 0
 
   clients: Client[] = [];
   states: State[] = [];
@@ -84,7 +85,7 @@ export class UserFormComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       client: ['', Validators.required],
       state: ['', Validators.required],
-      dob: ['', Validators.required],
+      dob: ['', [Validators.required, this.dobValidator(18)]],
       experienceStart: ['', Validators.required],
       experienceEnd: [{ value: '', disabled: this.isPresent }, Validators.required],
       yearsExperience: [{ value: '', disabled: true }],
@@ -174,22 +175,25 @@ export class UserFormComponent implements OnInit {
     }
   }
 
+
   onSubmit(): void {
     if (this.form.valid) {
       const formValue = this.form.value;
       const noOfFiles = this.filesWithImages.length;
-
-
+  
       // Ensure the experienceEnd value is set correctly based on isPresent state
       if (this.isPresent) {
         formValue.experienceEnd = new Date().toISOString(); // Set to the current date in UTC
       }
-
+  
       // Convert dates to UTC
       const dobUTC = new Date(formValue.dob).toISOString();
       const experienceStartUTC = new Date(formValue.experienceStart).toISOString();
       const experienceEndUTC = new Date(formValue.experienceEnd).toISOString();
-
+  
+      // Calculate the number of states
+      const noOfStates = formValue.state.length; // Assuming `state` is an array
+  
       // Map form value to Employee model
       const employee: Employee = {
         id: this.targetEmployee ? this.targetEmployee.id : 0, // Adjust as needed
@@ -216,9 +220,10 @@ export class UserFormComponent implements OnInit {
           employeeId: this.targetEmployee ? this.targetEmployee.id : 0, // Assuming it will be assigned by the backend
           baseCode: fileWithImage.base64 || '' // Add base64 encoding if needed
         })),
-        noOfFiles: noOfFiles // Set the number of files here
+        noOfFiles: noOfFiles, // Set the number of files here
+        noOfStates: noOfStates // Pass the number of states
       };
-
+  
       // Check if updating or creating an employee
       if (this.targetEmployee) {
         // Update existing employee
@@ -228,12 +233,14 @@ export class UserFormComponent implements OnInit {
               'Success!',
               'Employee updated successfully.',
               'success',
-
-            );
+            ).then((result) => {
+              if (result.isConfirmed) {
+                // This will be called when the "OK" button is clicked
+                window.location.reload(); 
+              }
+            });
             this.employeeService.onCreateAndUpdate.emit(true);
             this.onCloseDrawer();
-            // this.closeDrawer.emit(false); // Emit false to indicate closing the drawer
-
             this.isPercentage = false;
           },
           (error) => {
@@ -248,15 +255,20 @@ export class UserFormComponent implements OnInit {
         // Create new employee
         this.employeeService.createEmployee(employee).subscribe(
           (response) => {
-            Swal.fire(
-              'Success!',
-              'Employee created successfully.',
-              'success'
-            );
+            Swal.fire({
+              title: 'Success!',
+              text: 'Employee created successfully.',
+              icon: 'success',
+            }).then((result) => {
+              if (result.isConfirmed) {
+                // This will be called when the "OK" button is clicked
+                window.location.reload(); 
+              }
+            });
+        
+            // Emit event and close drawer
             this.employeeService.onCreateAndUpdate.emit(true);
             this.onCloseDrawer();
-            window.location.reload();
-            // this.closeDrawer.emit(false); // Emit false to indicate closing the drawer
             this.isPercentage = false;
           },
           (error) => {
@@ -272,6 +284,7 @@ export class UserFormComponent implements OnInit {
       console.log('Form is invalid');
     }
   }
+  
 
 
 
@@ -280,40 +293,70 @@ export class UserFormComponent implements OnInit {
     document.getElementById('file-upload')?.click();
   }
 
-  onFilesSelected(event: any): void {
-    const files = event.target.files;
-    this.selectedFiles = Array.from(files);
-    this.filesWithImages = []; // Clear existing files with images
+  // onFilesSelected(event: any): void {
+  //   const files = event.target.files;
+  //   this.selectedFiles = Array.from(files);
+  //   this.filesWithImages = []; // Clear existing files with images
 
-    this.selectedFiles.forEach((file, index) => {
-      const fileWithImage: FileWithImage = {
-        imageUrl: null,
-        file: file,
-        size: file.size,
-        name: `Attachment ${index + 1}`,
-        base64: null, // Initialize as null
-        type: file.type, // Set MIME type of the file
-      };
+  //   this.selectedFiles.forEach((file, index) => {
+  //     const fileWithImage: FileWithImage = {
+  //       imageUrl: null,
+  //       file: file,
+  //       size: file.size,
+  //       name: `Attachment ${index + 1}`,
+  //       base64: null, // Initialize as null
+  //       type: file.type, // Set MIME type of the file
+  //     };
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        fileWithImage.imageUrl = reader.result;
-        fileWithImage.base64 = reader.result ? (reader.result as string).split(',')[1] : null; // Extract Base64 string
-        this.filesWithImages.push(fileWithImage);
-      };
+  //     const reader = new FileReader();
+  //     reader.onload = () => {
+  //       fileWithImage.imageUrl = reader.result;
+  //       fileWithImage.base64 = reader.result ? (reader.result as string).split(',')[1] : null; // Extract Base64 string
+  //       this.filesWithImages.push(fileWithImage);
+  //     };
 
-      reader.readAsDataURL(file);
-    });
+  //     reader.readAsDataURL(file);
+  //   });
+  // }
+  onFilesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      const files: File[] = Array.from(input.files); // Convert FileList to an array of File
+  
+      // Add new files to the existing list
+      this.selectedFiles = [...this.selectedFiles, ...files];
+  
+      files.forEach((file, index) => {
+        const fileWithImage: FileWithImage = {
+          imageUrl: null,
+          file: file,
+          size: file.size,
+          name: `Attachment ${this.filesWithImages.length + 1}`,
+          base64: null,
+          type: file.type,
+        };
+  
+        const reader = new FileReader();
+        reader.onload = () => {
+          fileWithImage.imageUrl = reader.result;
+          fileWithImage.base64 = reader.result ? (reader.result as string).split(',')[1] : null;
+          this.filesWithImages.push(fileWithImage);
+        };
+  
+        reader.readAsDataURL(file);
+      });
+    }
   }
-
+  
+  
   removeFile(fileToRemove: FileWithImage): void {
     this.filesWithImages = this.filesWithImages.filter(file => file !== fileToRemove);
   }
   
 
-  // getFileUploadControlValue() {
-  //   return this.form.get('fileUpload')?.value;
-  // }
+  getFileUploadControlValue() {
+    return this.form.get('fileUpload')?.value;
+  }
 
   onCancel(): void {
     // Handle cancel logic here
@@ -425,16 +468,45 @@ export class UserFormComponent implements OnInit {
   percentageValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       const value = control.value;
-      return value && (value < 0 || value > 100) ? { invalidPercentage: true } : null;
+  
+      // Check if value is a valid number
+      if (isNaN(value)) {
+        return { invalidPercentage: true };
+      }
+  
+      // Check if the value is within the range 0-100
+      if (value < 0 || value > 100) {
+        return { invalidPercentage: true };
+      }
+  
+      // Check if the value has more than 2 decimal places
+      const decimalPlaces = value.toString().split('.')[1];
+      if (decimalPlaces && decimalPlaces.length > 2) {
+        return { invalidDecimalPlaces: true };
+      }
+  
+      return null; // If no errors, return null
     };
   }
+  
 
-  hourlyRateValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const value = control.value;
-      return value && value <= 0 ? { invalidHourlyRate: true } : null;
-    };
-  }
+  // hourlyRateValidator(): ValidatorFn {
+  //   return (control: AbstractControl): ValidationErrors | null => {
+  //     const value = control.value;
+  //     return value && value <= 0 ? { invalidHourlyRate: true } : null;
+  //   };
+  // }
+  // Validator for hourly rate
+hourlyRateValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    console.log(value);
+    
+    // Check if the value is a positive integer (no decimals)
+    const isPositiveInteger = Number.isInteger(value) && value > 0;
+    return !isPositiveInteger ? { invalidHourlyRate: true } : null;
+  };
+}
 
   experienceDateValidator(): ValidatorFn {
     return (formGroup: AbstractControl): ValidationErrors | null => {
@@ -454,7 +526,22 @@ export class UserFormComponent implements OnInit {
     };
   }
 
-
-
-
+   dobValidator(minAge: number = 18): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const dob = new Date(control.value);
+      const today = new Date();
+  
+      // Calculate the age based on the DOB
+      let age = today.getFullYear() - dob.getFullYear();
+      const monthDifference = today.getMonth() - dob.getMonth();
+  
+      // Adjust age if the birthday hasn't occurred yet this year
+      if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+  
+      // If the age is less than the minimum required age, return an error
+      return age < minAge ? { underage: true } : null;
+    };
+  }
 }

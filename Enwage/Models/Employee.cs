@@ -23,6 +23,7 @@ namespace Enwage.Models
         public string? Gender { get; set; }
         public int ClientId { get; set; }
         public int? NoOfFiles { get; set; }
+        public int? NoOfStates { get; set; }
 
         public virtual Client Client { get; set; } = null!;
         public virtual ICollection<Attachment> Attachments { get; set; }

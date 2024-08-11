@@ -102,6 +102,8 @@ namespace Enwage.Models
 
                 entity.Property(e => e.NoOfFiles).HasColumnName("No_of_Files");
 
+                entity.Property(e => e.NoOfStates).HasColumnName("No_of_States");
+
                 entity.Property(e => e.Rate)
                     .HasPrecision(10, 2)
                     .HasColumnName("rate");

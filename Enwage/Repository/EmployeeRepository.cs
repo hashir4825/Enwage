@@ -61,7 +61,7 @@ namespace Enwage.Repository
         //    int skip = (pageNumber - 1) * pageRows;
 
         //    // Fetch the required rows for the given page without ordering
-            
+
         //    return await _dbSet
         //        .Include(cli => cli.Client)
         //        .AsQueryable()
@@ -71,54 +71,47 @@ namespace Enwage.Repository
         //}
 
         public async Task<List<Employee>> GetAllEmployees(int pageNumber, int pageSize, string? searchQuery = null, string? sortBy = null, string? sortOrder = null)
-
         {
-
             int toBeMissed = pageSize * (pageNumber - 1);
+
+            int no_of_states;
+
+
+
+            // Convert searchQuery to lowercase if it's not null or whitespace
+            var lowerSearchQuery = searchQuery?.ToLower();
 
             var query = _dbSet.Include(cli => cli.Client).AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(searchQuery))
-
+            if (!string.IsNullOrWhiteSpace(lowerSearchQuery))
             {
-
-                query = query.Where(e => e.Name.Contains(searchQuery) || e.Email.Contains(searchQuery) || e.Client.Name.Contains(searchQuery));
-
+                // Use ToLower() on the fields to make the search case-insensitive
+                query = query.Where(e =>
+                    e.Name.ToLower().Contains(lowerSearchQuery) ||
+                    e.Email.ToLower().Contains(lowerSearchQuery) ||
+                    e.Client.Name.ToLower().Contains(lowerSearchQuery));
             }
 
             if (!string.IsNullOrWhiteSpace(sortBy))
-
             {
-
                 if (sortOrder?.ToLower() == "desc")
-
                 {
-
                     query = query.OrderByDescending(e => EF.Property<object>(e, sortBy));
-
                 }
-
                 else
-
                 {
-
                     query = query.OrderBy(e => EF.Property<object>(e, sortBy));
-
                 }
-
             }
-
             else
-
             {
-
                 query = query.OrderBy(e => e.Id);
-
             }
 
             return await query.Skip(toBeMissed).Take(pageSize).ToListAsync();
-
         }
+
+
 
         public async Task<int> CountTotalEmployees(string? searchQuery = null)
 
@@ -137,6 +130,30 @@ namespace Enwage.Repository
             return await query.CountAsync();
 
         }
+
+        public async Task UpdateEmployeeStateCountsAsync()
+        {
+            // Fetch all employees with their related states
+            var employees = await _dbSet
+                .Include(e => e.Employeestates)
+                .ToListAsync();
+
+            foreach (var employee in employees)
+            {
+                // Count the number of states
+                int stateCount = employee.Employeestates.Count;
+
+                // Update the employee's NoOfStates field
+                employee.NoOfStates = stateCount;
+
+                // Update the employee in the database
+                _dbSet.Update(employee);
+            }
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+        }
+
 
     }
 

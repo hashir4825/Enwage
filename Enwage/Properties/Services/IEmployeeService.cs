@@ -23,6 +23,7 @@ namespace Enwage.Properties.Services
         //public Task<Employee> GetEmployeeByIdAsync(int id);
 
 
+        public Task UpdateEmployeeStateCountsAsync();
 
     }
 }

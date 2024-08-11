@@ -16,6 +16,8 @@ namespace Enwage.Interface
 
         public Task<int> CountTotalEmployees(string? searchQuery = null);
 
+        public Task UpdateEmployeeStateCountsAsync();
+
 
     }
 }

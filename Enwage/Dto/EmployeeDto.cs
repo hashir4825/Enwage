@@ -19,7 +19,7 @@ namespace Enwage.Dto
         public bool RateFlag { get; set; }
 
         public int? NoOfFiles { get; set; }
-
+        public int? NoOfStates { get; set; }
 
     }
 }

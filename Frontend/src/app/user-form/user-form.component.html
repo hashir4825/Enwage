@@ -12,7 +12,8 @@
     </div>
     <button class="text-gray-500 hover:text-gray-800">
       <!-- oncloseDrawer function call below line -->
-      <svg (click)="onCloseDrawer()" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <svg (click)="onCloseDrawer()" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
       </svg>
     </button>
@@ -76,7 +77,7 @@
       </div>
 
 
-      
+
 
       <div class="relative pr-5">
         <!-- <label class="block text-gray-700 text-md font-semibold mb-2" for="state">
@@ -94,8 +95,8 @@
         <div class="mt-8 mr-8 absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
           <img src="assets/droopicon.jpg" alt="Arrow" class="w-4 h-4">
         </div> -->
-                <label class="block text-gray-700 text-md font-semibold mb-2">
-          State 
+        <label class="block text-gray-700 text-md font-semibold mb-2">
+          State
         </label>
         <div class="col-md-6 col-sm-12">
           <div class="form-group">
@@ -105,7 +106,7 @@
                 <mat-option *ngFor="let state of states" [value]="state.id">{{state.name}}</mat-option>
               </mat-select>
             </mat-form-field>
-            
+
           </div>
         </div>
 
@@ -122,6 +123,9 @@
         <div *ngIf="form.get('dob')?.invalid && (form.get('dob')?.touched || form.get('dob')?.dirty)"
           class="text-red-500">
           Date of Birth is required.
+        </div>
+        <div class="text-red-500" *ngIf="form.get('dob').hasError('underage')">
+          DOB must be at least 18 years.
         </div>
       </div>
       <div class="grid grid-cols-2 gap-4">
@@ -144,30 +148,24 @@
           </label>
           <input
             class="h-11 shadow appearance-none border-2 border-solid border-black-600 rounded-lg w-full p-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="experience-end" formControlName="experienceEnd" type="date" 
-            [value]="isPresent ? presentDate : form.get('experienceEnd')?.value"
-            >
+            id="experience-end" formControlName="experienceEnd" type="date"
+            [value]="isPresent ? presentDate : form.get('experienceEnd')?.value">
           <div
             *ngIf="form.get('experienceEnd')?.invalid && (form.get('experienceEnd')?.touched || form.get('experienceEnd')?.dirty)"
             class="text-red-500">
             Experience End date is required.
           </div>
           <div
-          *ngIf="form.errors?.['invalidDateRange'] && (form.get('experienceEnd')?.touched || form.get('experienceEnd')?.dirty)"
-          class="text-red-500">
-          Experience End date must be after the Experience Start date.
-        </div>
-        
-          <label 
-          class="block text-gray-700 text-md font-semibold" 
-          for="isPresent">
-          Present
-        </label>
-        <input 
-        type="checkbox" 
-        class="h-4 w-4 text-indigo-600 border-gray-300 rounded mr-2" 
-        id="isPresent" 
-        (change)="togglePresent($event)">
+            *ngIf="form.errors?.['invalidDateRange'] && (form.get('experienceEnd')?.touched || form.get('experienceEnd')?.dirty)"
+            class="text-red-500">
+            Experience End date must be after the Experience Start date.
+          </div>
+
+          <label class="block text-gray-700 text-md font-semibold" for="isPresent">
+            Present
+          </label>
+          <input type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded mr-2" id="isPresent"
+            (change)="togglePresent($event)">
         </div>
       </div>
     </div>
@@ -180,171 +178,120 @@
         class="h-11 shadow appearance-none border-2 border-solid border-black-600 rounded-lg w-full p-4 text-gray-700 bg-gray-100 leading-tight focus:outline-none focus:shadow-outline"
         id="years-experience" formControlName="yearsExperience" type="text" placeholder="1 Year 3 months" readonly>
     </div>
-    
+
 
 
     <div class="pl-5 pr-5 flex items-center">
-      <input 
-        type="checkbox" 
-        class="h-4 w-4 text-indigo-600 border-gray-300 rounded mr-2" 
-        id="changeState" 
-        name="changeState" 
-        (change)="onPercentageChange($event)">
-      <label 
-        class="block text-gray-700 text-md font-semibold" 
-        for="changeState">
+      <input type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded mr-2" id="changeState"
+        name="changeState" (change)="onPercentageChange($event)">
+      <label class="block text-gray-700 text-md font-semibold" for="changeState">
         Change State
       </label>
     </div>
-    
+
     <div class="w-1/2 pr-5 pl-5">
-      <label 
-        class="block text-gray-700 text-md font-semibold mb-2" 
-        for="rate">
+      <label class="block text-gray-700 text-md font-semibold mb-2" for="rate">
         {{ isPercentage ? 'Percentage' : 'Hourly Rate' }} <span class="text-red-500">*</span>
       </label>
       <div class="relative w-full">
-        <input 
-          class="h-11 shadow appearance-none border-2 border-solid border-black-600 rounded-lg w-full p-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-          id="rate" 
-          formControlName="rate" 
-          type="text" 
+        <input
+          class="h-11 shadow appearance-none border-2 border-solid border-black-600 rounded-lg w-full p-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          id="rate" formControlName="rate" type="number"
           placeholder="Enter {{ isPercentage ? 'Percentage' : 'Hourly rate' }}">
         <div class="rounded-lg absolute inset-y-0 right-0 justify-center flex">
           <span class="text-white bg-gray-400 rounded-lg h-full w-12 py-3 pl-5">{{ isPercentage ? '%' : '$' }}</span>
         </div>
       </div>
 
-      <div
-      *ngIf="form.get('rate')?.invalid && (form.get('rate')?.touched || form.get('rate')?.dirty)"
-      class="text-red-500">
-      Hourly rate or precentage is required.
-    </div>
-    
+      <div *ngIf="form.get('rate')?.invalid && (form.get('rate')?.touched || form.get('rate')?.dirty)"
+        class="text-red-500">
+        Hourly rate or precentage is required in appropriate format.
+      </div>
+
       <div *ngIf="form.get('rate')?.hasError('invalidPercentage') && 
-                    (form.get('rate')?.touched || form.get('rate')?.dirty)" 
-           class="text-red-500">
+                    (form.get('rate')?.touched || form.get('rate')?.dirty)" class="text-red-500">
         Percentage should be between 0 and 100 with up to 2 decimal places.
       </div>
-      
+
+
       <div *ngIf="form.get('rate')?.hasError('invalidHourlyRate') && 
-                    (form.get('rate')?.touched || form.get('rate')?.dirty)" 
-           class="text-red-500">
-        Hourly Rate must be a positive number with up to 2 decimal places.
+      (form.get('rate')?.touched || form.get('rate')?.dirty)" class="text-red-500">
+        Hourly Rate must be a positive whole number without decimals.
       </div>
     </div>
-    
-    
+
+
     <div class="pl-5">
       <label class="block text-gray-700 text-md font-semibold mb-2" for="gender">
         Select Gender
       </label>
       <div class="mt-1 space-y-2">
         <div class="flex items-center">
-          <input 
-            type="radio" 
-            id="genderMale" 
-            name="gender" 
-            class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 mr-2" 
-            formControlName="gender" 
+          <input type="radio" id="genderMale" name="gender"
+            class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 mr-2" formControlName="gender"
             value="Male">
           <label class="block text-gray-700 text-md font-semibold" for="genderMale">Male</label>
         </div>
         <div class="flex items-center">
-          <input 
-            type="radio" 
-            id="genderFemale" 
-            name="gender" 
-            class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 mr-2" 
-            formControlName="gender" 
+          <input type="radio" id="genderFemale" name="gender"
+            class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 mr-2" formControlName="gender"
             value="Female">
           <label class="block text-gray-700 text-md font-semibold" for="genderFemale">Female</label>
         </div>
         <div class="flex items-center">
-          <input 
-            type="radio" 
-            id="genderOther" 
-            name="gender" 
-            class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 mr-2" 
-            formControlName="gender" 
+          <input type="radio" id="genderOther" name="gender"
+            class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 mr-2" formControlName="gender"
             value="Other">
           <label class="block text-gray-700 text-md font-semibold" for="genderOther">Other</label>
         </div>
       </div>
     </div>
-    
+
     <div class="pl-5 pr-5">
-      <div class="border-2 border-dashed border-gray-300 p-8 rounded-lg flex flex-col items-center justify-center text-center">
-<img class="h-16 w-auto" src="assets/clip.png" alt="">
-          <p class="text-gray-600">Drop your attachment here or <span class="text-blue-500 cursor-pointer" (click)="browseFiles()">browse</span></p>
-          <p class="text-gray-400">PDF, DOC, DOCX, JPG, JPEG or PNG (max, 5 MB)</p>
-          <input
-          type="file"
-          class="hidden"
-          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-          id="file-upload"
-          (change)="onFilesSelected($event)"
-          multiple="multiple"
-        />
-        </div>
+      <div
+        class="border-2 border-dashed border-gray-300 p-8 rounded-lg flex flex-col items-center justify-center text-center">
+        <img class="h-16 w-auto" src="assets/clip.png" alt="">
+        <p class="text-gray-600">Drop your attachment here or <span class="text-blue-500 cursor-pointer"
+            (click)="browseFiles()">browse</span></p>
+        <p class="text-gray-400">PDF, DOC, DOCX, JPG, JPEG or PNG (max, 5 MB)</p>
+        <input type="file" class="hidden" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" id="file-upload"
+          (change)="onFilesSelected($event)" multiple="multiple" />
+      </div>
 
 
-<div
-      *ngFor="let file of filesWithImages"
-      class="flex justify-between items rounded-lg overflow-hidden p-5 h-16"
-    >
-      <!-- <p><strong>Type:</strong> {{ file.type }}</p> -->
-      <div class="w-1/12 overflow-hidden">
-        <img
-        (click)="openAttachment(file)"
-        style="cursor: pointer;"
-          *ngIf="file.imageUrl"
-          [src]="file.imageUrl"
-          class="rounded-l-md w-auto h-16"
-        />
-      </div>
-      <div class="w-11/12 bg-gray-200 pl-2 flex justify-between gap-2">
-        <div class="w-4/5">
-          <h4 class="font-semibold text-lg">{{ file.name }}</h4>
-          <p class="text-gray-600 text-sm font-semibold">
-            {{ (file.size / 1048576).toFixed(2) }} MB
-          </p>
+      <div *ngFor="let file of filesWithImages" class="flex justify-between items rounded-lg overflow-hidden p-5 h-16">
+        <!-- <p><strong>Type:</strong> {{ file.type }}</p> -->
+        <div class="w-1/12 overflow-hidden">
+          <img (click)="openAttachment(file)" style="cursor: pointer;" *ngIf="file.imageUrl" [src]="file.imageUrl"
+            class="rounded-l-md w-auto h-16" />
         </div>
-        <div class="w-1/5 bg-green-50 h-full grid place-items-center">
-          <button (click)="removeFile(file)">
-            <svg
-              class="w-6 h-6 text-gray-800 dark:text-white"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18 17.94 6M18 18 6.06 6"
-              />
-            </svg>
-          </button>
+        <div class="w-11/12 bg-gray-200 pl-2 flex justify-between gap-2">
+          <div class="w-4/5">
+            <h4 class="font-semibold text-lg">{{ file.name }}</h4>
+            <p class="text-gray-600 text-sm font-semibold">
+              {{ (file.size / 1048576).toFixed(2) }} MB
+            </p>
+          </div>
+          <div class="w-1/5 bg-green-50 h-full grid place-items-center">
+            <button (click)="removeFile(file)">
+              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M6 18 17.94 6M18 18 6.06 6" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
- 
+
 
 
     </div>
     <div class="pl-5 pr-5">
-      <button 
-      [ngClass]="{
+      <button [ngClass]="{
         'cursor-not-allowed': !form.valid,
         'border-red-500': !form.valid
-      }"
-      [disabled]="!form.valid"
-      type="submit"
+      }" [disabled]="!form.valid" type="submit"
         class="w-full h-12 text-white bg-indigo-500 hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700 rounded-lg shadow-lg">
         Save
       </button>

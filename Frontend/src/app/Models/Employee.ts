@@ -14,6 +14,7 @@ export interface Employee {
     employeestates: EmployeeState[];
     attachments?: Attachment[]; // Optional field
     noOfFiles: number; // Add this field
+    noOfStates: number
   }
   
   export interface EmployeeState {
