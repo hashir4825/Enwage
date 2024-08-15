@@ -16,6 +16,7 @@ export class PagenationComponent implements OnInit {
   @Input() pageSize: number =5;
   // @Output() pageChange = new EventEmitter<{ pageNumber: number, pageSize: number }>();
 
+  allrows: number;
   totalRows = 0;
   totalPages = 0;
 
@@ -50,6 +51,7 @@ export class PagenationComponent implements OnInit {
   }
 
   calculateTotalPages(totalRows: number) {
+    this.allrows = totalRows;
     this.totalPages = Math.ceil(totalRows / this.pageSize);
   }
 

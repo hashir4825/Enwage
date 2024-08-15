@@ -35,39 +35,37 @@
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
       <thead class="text-xs text-gray-500 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400">
         <tr>
-          <th scope="col" class="px-6 py-3 font-medium">Name
+          <th scope="col" class="px-6 py-3 font-medium text-center">Name
             <button (click)="sortColumn('Name')">
-              <img class="ml-2 h-2 w-2" [src]="getSortIcon('Name')" alt="Sort">
+              <img class="ml-2 h-2 w-2 inline" [src]="getSortIcon('Name')" alt="Sort">
             </button>
           </th>
-          <th scope="col" class="px-6 py-3 font-medium">Email
+          <th scope="col" class="px-6 py-3 font-medium text-center">Email
             <button (click)="sortColumn('Email')">
-              <img class="ml-2 h-2 w-2" [src]="getSortIcon('Email')" alt="Sort">
+              <img class="ml-2 h-2 w-2 inline" [src]="getSortIcon('Email')" alt="Sort">
             </button>
           </th>
-          <th scope="col" class="px-6 py-3 font-medium">Client
+          <th scope="col" class="px-6 py-3 font-medium text-center">Client
             <button (click)="sortColumn('Client')">
-              <img class="ml-2 h-2 w-2" [src]="getSortIcon('Client')" alt="Sort">
+              <img class="ml-2 h-2 w-2 inline" [src]="getSortIcon('Client')" alt="Sort">
             </button>
           </th>
-          <th scope="col" class="px-6 py-3 font-medium">Years Of Experience
-          </th>
-          <th scope="col" class="px-6 py-3 font-medium">Gender
-            <button (click)="sortColumn('Gender')">
+          <th scope="col" class="px-6 py-3 font-medium text-center">Years Of Experience</th>
+          <th scope="col" class="px-6 py-3 font-medium text-center">Gender
+            <button (click)="sortColumn('Gender')" class="inline-flex items-center">
               <img class="ml-2 h-2 w-2" [src]="getSortIcon('Gender')" alt="Sort">
             </button>
           </th>
-          <th scope="col" class="px-6 py-3 font-medium">Rate
+          
+          <th scope="col" class="px-6 py-3 font-medium text-center">Rate
             <button (click)="sortColumn('Rate')">
-              <img class="ml-2 h-2 w-2" [src]="getSortIcon('Rate')" alt="Sort">
+              <img class="ml-2 h-2 w-2 inline" [src]="getSortIcon('Rate')" alt="Sort">
             </button>
           </th>
-          <th scope="col" class="px-6 py-3 font-medium">No of Files
-          </th>
-          <th scope="col" class="px-6 py-3 font-medium">No of States
-          </th>
-          <th scope="col" class="px-6 py-3 font-medium">Action
-          </th>
+          <th scope="col" class=" py-3 font-medium text-center">No of Files</th>
+          <th scope="col" class=" py-3 font-medium text-center">No of States</th>
+          <th scope="col" class="px-6 py-3 font-medium text-center">Attachments</th>
+          <th scope="col" class="px-6 py-3 font-medium text-center">Action</th>
         </tr>
         
 
@@ -79,7 +77,7 @@
       <tbody>
 
 
-        <tr *ngFor="let employee of employees">
+        <!-- <tr *ngFor="let employee of employees">
           <td class="px-6 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ employee.name }}</td>
           <td class="px-6 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ employee.email }}</td>
 
@@ -101,7 +99,68 @@
             <button (click)="onDelete(employee.id)" class="bg-gray-200 rounded-xl"><img src="assets/deleteicon.png"
                 class="p-0.5 h-6 w-6" alt=""></button>
           </td>
+        </tr> -->
+
+        <tr *ngFor="let employee of employees">
+          <td class="px-6 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ employee.name }}</td>
+          <td class="px-6 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ employee.email }}</td>
+          <td class="px-6 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ employee.clientName }}</td>
+          <td class="px-6 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ employee.yearsofexperience }}</td>
+          <td class="px-6 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ employee.gender }}</td>
+          <td class="px-6 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ formatRate(employee.rate, employee.rateFlag) }}</td>
+          <td class="px-6 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ employee.noOfFiles }}</td>
+          <td class="px-6 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ employee.noOfStates }}</td>
+        
+          <td class="py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+            <span *ngFor="let attachment of employee.attachments; let i = index">
+              <a href="javascript:void(0)" (click)="openAttachment(attachment)" class="text-black hover:underline">
+                {{ attachment.name }}
+              </a>
+              <span *ngIf="i < employee.attachments.length - 1">, </span>
+            </span>
+          </td>
+
+
+
+ <!-- <td style="padding: 1rem; font-weight: 500; color: #1f2937; white-space: nowrap; background-color: #ffffff;">
+            <div style="display: flex; flex-wrap: nowrap; gap: 10px; overflow-x: auto; padding: 5px;">
+              <div *ngFor="let attachment of employee.attachments; let i = index" style="display: flex; flex-direction: column; align-items: center;">
+                <ng-container *ngIf="isImage(attachment.type); else nonImage">
+                  Image preview
+                  <img
+                    [src]="getImagePreviewUrl(attachment.baseCode, attachment.type)"
+                    (click)="openAttachment(attachment)"
+                    alt="{{ attachment.name }}"
+                    style="cursor: pointer; width: 40px; height: 40px; object-fit: cover; border-radius: 4px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"
+                  />
+                </ng-container>
+                <ng-template #nonImage>
+                  Fallback for non-image files
+                  <a (click)="openAttachment(attachment)" style="margin-top: 10px; color: #000000; cursor: pointer;">
+                    {{ attachment.name }}
+                  </a>
+                </ng-template>
+              </div>
+            </div>
+          </td> -->
+          
+         
+          
+          
+
+          
+          
+        
+          <td class="flex justify-center  py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+            <button class="ml-9 bg-gray-200 rounded-xl" (click)="setDrawerState(true); onEdit(employee.id)">
+              <img src="assets/editicon.png" class="p-1 h-6 w-6" alt="Edit">
+            </button>
+            <button (click)="onDelete(employee.id)" class="bg-gray-200 rounded-xl">
+              <img src="assets/deleteicon.png" class="p-1 h-6 w-6" alt="Delete">
+            </button>
+          </td>
         </tr>
+        
 
       </tbody>
     </table>

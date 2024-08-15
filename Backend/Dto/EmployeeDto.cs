@@ -21,5 +21,10 @@ namespace Enwage.Dto
         public int? NoOfFiles { get; set; }
         public int? NoOfStates { get; set; }
 
+        public List<AttachmentDto>? Attachments { get; set; }
+
+
+
+
     }
 }

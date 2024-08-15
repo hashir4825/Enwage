@@ -19,7 +19,7 @@
     </button>
   </div>
   <form [formGroup]="form" class="space-y-4" (ngSubmit)="onSubmit()">
-    <div class="pt-5 grid grid-cols-2 gap-4">
+    <!-- <div class="pt-5 grid grid-cols-2 gap-4">
       <div class="pl-5">
         <label class="block text-gray-700 text-md font-semibold mb-2" for="name">
           Name <span class="text-red-500">*</span>
@@ -44,35 +44,65 @@
           Valid email is required.
         </div>
       </div>
+    </div> -->
+
+    <div class="pt-5 grid grid-cols-2 gap-4">
+      <div class="pl-5">
+        <label class="block text-gray-700 text-md font-semibold mb-2" for="name">
+          Name <span class="text-red-500">*</span>
+        </label>
+        <input
+          class="h-11 shadow appearance-none border-2 border-solid border-black-600 rounded-lg w-full p-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          id="name" formControlName="name" type="text" placeholder="Enter Name">
+        <div *ngIf="form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)"
+          class="text-red-500">
+          <ng-container *ngIf="form.get('name')?.errors?.['required']">
+            Name is required.
+          </ng-container>
+          <ng-container *ngIf="form.get('name')?.errors?.['startsWithSpace']">
+            Name should not start with a space.
+          </ng-container>
+        </div>
+      </div>
+    
+      <div class="pr-5">
+        <label class="block text-gray-700 text-md font-semibold mb-2" for="email">
+          Email <span class="text-red-500">*</span>
+        </label>
+        <input
+          class="h-11 shadow appearance-none border-2 border-solid border-black-600 rounded-lg w-full p-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          id="email" formControlName="email" type="email" placeholder="Enter Email">
+        <div *ngIf="form.get('email')?.invalid && (form.get('email')?.touched || form.get('email')?.dirty)"
+          class="text-red-500">
+          <ng-container *ngIf="form.get('email')?.errors?.['required']">
+            Email is required.
+          </ng-container>
+          <ng-container *ngIf="form.get('email')?.errors?.['email']  || form.get('email')?.errors?.['invalidEmail'] ">
+            Invalid email format.
+          </ng-container>
+        </div>
+      </div>
     </div>
+    
     <div class="grid grid-cols-2 gap-4">
 
 
       <div class="relative pl-5">
-        <!-- <div class=" col-md-6 col-sm-12">
-          <div class="form-group">
-            <mat-form-field appearance="fill">
-              <mat-label>Client</mat-label>
-              <mat-select formControlName="client" multiple>
-                <mat-option *ngFor="let client of clients" [value]="client.id">{{client.name}}</mat-option>
-              </mat-select>
-            </mat-form-field>
-            
-          </div>
-        </div> -->
-
-
-
         <label class="block text-gray-700 text-md font-semibold mb-2" for="client">
           Client <span class="text-red-500">*</span>
         </label>
         <select Client
+        
           class="h-11 shadow appearance-none border-2 border-solid border-black-600 rounded-lg w-full p-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           id="client" formControlName="client">
+          <option value="" disabled selected>Select a client</option> <!-- Placeholder option -->
           <option *ngFor="let client of clients" [value]="client.id">{{client.name}}</option>
         </select>
         <div class="mr-2 absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
           <img src="assets/droopicon.jpg" alt="Arrow" class="w-4 h-4">
+        </div>
+        <div class="text-red-500" *ngIf="form.get('client')?.invalid && (form.get('client')?.touched) ">
+          Client is required
         </div>
       </div>
 
@@ -118,18 +148,17 @@
           Date of Birth <span class="text-red-500">*</span>
         </label>
         <input
-          class="h-11 shadow appearance-none border-2 border-solid border-black-600 rounded-lg w-full p-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          class="h-11 shadow appearance-none border-2 border-solid border-black-600 rounded-lg w-full p-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"  [max]="todayDate"
           id="dob" formControlName="dob" type="date">
-        <div *ngIf="form.get('dob')?.invalid && (form.get('dob')?.touched || form.get('dob')?.dirty)"
-          class="text-red-500">
-          Date of Birth is required.
-        </div>
+          <div *ngIf="form.get('dob')?.hasError('required') && form.get('dob')?.touched" class="text-red-500">
+            Date of Birth is required.
+          </div>
         <div class="text-red-500" *ngIf="form.get('dob').hasError('underage')">
-          DOB must be at least 18 years.
+          Age must be at least 18 years.
         </div>
       </div>
       <div class="grid grid-cols-2 gap-4">
-        <div>
+        <!-- <div>
           <label class="block text-gray-700 text-md font-semibold mb-2" for="experience-start">
             Experience Start <span class="text-red-500">*</span>
           </label>
@@ -137,21 +166,40 @@
             class="h-11 shadow appearance-none border-2 border-solid border-black-600 rounded-lg w-full p-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             id="experience-start" formControlName="experienceStart" type="date">
           <div
-            *ngIf="form.get('experienceStart')?.invalid && (form.get('experienceStart')?.touched || form.get('experienceStart')?.dirty)"
+            *ngIf="form.get('experienceStart')?.invalid && (form.get('experienceStart')?.touched ||  form.get('experienceStart')?.dirty)"
             class="text-red-500">
             Experience Start date is required.
           </div>
+        </div> -->
+        <div>
+          <label class="block text-gray-700 text-md font-semibold mb-2" for="experience-start">
+            Experience Start <span class="text-red-500">*</span>
+          </label>
+          <input
+            class="h-11 shadow appearance-none border-2 border-solid border-black-600 rounded-lg w-full p-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            id="experience-start" formControlName="experienceStart" type="date"  [max]="todayDate">
+          <div
+            *ngIf="form.get('experienceStart')?.invalid && (form.get('experienceStart')?.touched || form.get('experienceStart')?.dirty)"
+            class="text-red-500">
+            <ng-container *ngIf="form.get('experienceStart')?.errors?.['required']">
+              Experience Start date is required.
+            </ng-container>
+            <ng-container *ngIf="form.get('experienceStart').hasError('experienceTooSoon')">
+              Experience Start must be at least 16 years after Date of Birth.
+            </ng-container>
+          </div>
         </div>
+        
         <div class="w-full pr-5 pl-5">
           <label class="block text-gray-700 text-md font-semibold mb-2" for="experience-end">
             Experience End <span class="text-red-500">*</span>
           </label>
           <input
             class="h-11 shadow appearance-none border-2 border-solid border-black-600 rounded-lg w-full p-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="experience-end" formControlName="experienceEnd" type="date"
+            id="experience-end" formControlName="experienceEnd" type="date"  [max]="todayDate"
             [value]="isPresent ? presentDate : form.get('experienceEnd')?.value">
           <div
-            *ngIf="form.get('experienceEnd')?.invalid && (form.get('experienceEnd')?.touched || form.get('experienceEnd')?.dirty)"
+            *ngIf="form.get('experienceEnd')?.invalid && (form.get('experienceEnd')?.touched ||  (form.get('experienceEnd')?.dirty  && form.get('experienceEnd')?.hasError('required')) )"
             class="text-red-500">
             Experience End date is required.
           </div>
@@ -175,9 +223,12 @@
         Years of Experience <span class="text-red-500">*</span>
       </label>
       <input
-        class="h-11 shadow appearance-none border-2 border-solid border-black-600 rounded-lg w-full p-4 text-gray-700 bg-gray-100 leading-tight focus:outline-none focus:shadow-outline"
-        id="years-experience" formControlName="yearsExperience" type="text" placeholder="1 Year 3 months" readonly>
+        class="h-11 shadow appearance-none border-2 border-solid border-black-600 rounded-lg w-full p-4 text-gray-700 bg-gray-100 leading-tight focus:outline-none focus:shadow-outline" placeholder="Years of Experience"
+        id="years-experience" formControlName="yearsExperience" type="text" [value]="form.get('yearsExperience')?.value" readonly >
     </div>
+
+
+ 
 
 
 
@@ -203,14 +254,14 @@
         </div>
       </div>
 
-      <div *ngIf="form.get('rate')?.invalid && (form.get('rate')?.touched || form.get('rate')?.dirty)"
+      <div *ngIf="form.get('rate')?.hasError('required') && (form.get('rate')?.touched)"
         class="text-red-500">
         Hourly rate or precentage is required in appropriate format.
       </div>
 
       <div *ngIf="form.get('rate')?.hasError('invalidPercentage') && 
                     (form.get('rate')?.touched || form.get('rate')?.dirty)" class="text-red-500">
-        Percentage should be between 0 and 100 with up to 2 decimal places.
+        Percentage should be between 0 and 100
       </div>
 
 
@@ -269,7 +320,7 @@
           <div class="w-4/5">
             <h4 class="font-semibold text-lg">{{ file.name }}</h4>
             <p class="text-gray-600 text-sm font-semibold">
-              {{ (file.size / 1048576).toFixed(2) }} MB
+              {{ (file.size / 1048576).toFixed(2) }}
             </p>
           </div>
           <div class="w-1/5 bg-green-50 h-full grid place-items-center">
@@ -291,7 +342,7 @@
       <button [ngClass]="{
         'cursor-not-allowed': !form.valid,
         'border-red-500': !form.valid
-      }" [disabled]="!form.valid" type="submit"
+      }" type="submit"
         class="w-full h-12 text-white bg-indigo-500 hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700 rounded-lg shadow-lg">
         Save
       </button>

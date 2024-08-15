@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Enwage")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+263e2773306dbac5b74813af1ce5f06c9a3565dc")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+635a9fa69e33017ba953eedcc13955eea2949f1b")]
 [assembly: System.Reflection.AssemblyProductAttribute("Enwage")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Enwage")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

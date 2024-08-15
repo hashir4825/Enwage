@@ -14,7 +14,7 @@
         public string? Gender { get; set; }
         public int ClientId { get; set; }
         public int? NoOfFiles { get; set; }
-        public int? NoOfStates { get; set; }
+        //public int? NoOfStates { get; set; }
 
 
         public List<EmployeeStateDto> Employeestates { get; set; }

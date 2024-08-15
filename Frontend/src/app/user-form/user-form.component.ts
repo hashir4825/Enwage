@@ -24,6 +24,7 @@ interface FileWithImage {
 export class UserFormComponent implements OnInit {
 
   no_of_states: number = 0
+  todayDate: string;
 
   clients: Client[] = [];
   states: State[] = [];
@@ -68,6 +69,9 @@ export class UserFormComponent implements OnInit {
   private subscriptions: Subscription = new Subscription();
 
   ngOnInit(): void {
+
+    this.todayDate = new Date().toISOString().split('T')[0]; // Set today's date in YYYY-MM-DD format
+
     this.loadClients();
     this.loadStates();
 
@@ -81,12 +85,17 @@ export class UserFormComponent implements OnInit {
     );
 
     this.form = this.fb.group({
-      name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      // name: ['', Validators.required],
+      // email: ['', [Validators.required, Validators.email]],
+      name: ['', [Validators.required, this.noSpaceAtStartValidator()]],
+      email: ['', [Validators.required, Validators.email, this.emailValidator()]],
       client: ['', Validators.required],
       state: ['', Validators.required],
-      dob: ['', [Validators.required, this.dobValidator(18)]],
-      experienceStart: ['', Validators.required],
+      dob: ['', [Validators.required, this.dobValidator(16)]],
+      experienceStart: ['', [Validators.required, this.experienceStartDateDobValidator('dob')]],
+
+
+
       experienceEnd: [{ value: '', disabled: this.isPresent }, Validators.required],
       yearsExperience: [{ value: '', disabled: true }],
       rate: ['', [Validators.required]],
@@ -104,7 +113,6 @@ export class UserFormComponent implements OnInit {
 
     this.form.get('experienceStart')?.valueChanges.subscribe(() => this.calculateExperience());
     this.form.get('experienceEnd')?.valueChanges.subscribe(() => this.calculateExperience());
-    this.form.get('isPresent')?.valueChanges.subscribe(() => this.calculateExperience());
   }
 
 
@@ -177,6 +185,11 @@ export class UserFormComponent implements OnInit {
 
 
   onSubmit(): void {
+    if( this.form.invalid){
+      this.form.markAllAsTouched();
+    }
+
+
     if (this.form.valid) {
       const formValue = this.form.value;
       const noOfFiles = this.filesWithImages.length;
@@ -192,7 +205,7 @@ export class UserFormComponent implements OnInit {
       const experienceEndUTC = new Date(formValue.experienceEnd).toISOString();
   
       // Calculate the number of states
-      const noOfStates = formValue.state.length; // Assuming `state` is an array
+      // const noOfStates = formValue.state.length; // Assuming `state` is an array
   
       // Map form value to Employee model
       const employee: Employee = {
@@ -221,7 +234,7 @@ export class UserFormComponent implements OnInit {
           baseCode: fileWithImage.base64 || '' // Add base64 encoding if needed
         })),
         noOfFiles: noOfFiles, // Set the number of files here
-        noOfStates: noOfStates // Pass the number of states
+        // noOfStates: noOfStates // Pass the number of states
       };
   
       // Check if updating or creating an employee
@@ -331,7 +344,9 @@ export class UserFormComponent implements OnInit {
           imageUrl: null,
           file: file,
           size: file.size,
-          name: `Attachment ${this.filesWithImages.length + 1}`,
+          // name: `Attachment ${this.filesWithImages.length + 1}`,
+          name: file.name,
+
           base64: null,
           type: file.type,
         };
@@ -349,6 +364,7 @@ export class UserFormComponent implements OnInit {
   }
   
   
+  
   removeFile(fileToRemove: FileWithImage): void {
     this.filesWithImages = this.filesWithImages.filter(file => file !== fileToRemove);
   }
@@ -364,30 +380,30 @@ export class UserFormComponent implements OnInit {
 
 
 
-  calculateExperience(): void {
-    const start = this.form.get('experienceStart')?.value;
-    const end = this.isPresent ? this.presentDate : this.form.get('experienceEnd')?.value;
+  // calculateExperience(): void {
+  //   const start = this.form.get('experienceStart')?.value;
+  //   const end = this.isPresent ? this.presentDate : this.form.get('experienceEnd')?.value;
 
-    if (start && end) {
-      const startDate = new Date(start);
-      const endDate = new Date(end);
+  //   if (start && end) {
+  //     const startDate = new Date(start);
+  //     const endDate = new Date(end);
 
-      let years = endDate.getFullYear() - startDate.getFullYear();
-      let months = endDate.getMonth() - startDate.getMonth();
+  //     let years = endDate.getFullYear() - startDate.getFullYear();
+  //     let months = endDate.getMonth() - startDate.getMonth();
 
-      if (months < 0) {
-        years--;
-        months += 12;
-      }
+  //     if (months < 0) {
+  //       years--;
+  //       months += 12;
+  //     }
 
-      // Construct experience string
-      const experience = `${years} years ${months} months`;
-      this.form.get('yearsExperience')?.setValue(experience, { emitEvent: false });
-      console.log(this.form.get('yearsExperience').value);
+  //     // Construct experience string
+  //     const experience = `${years} years ${months} months`;
+  //     this.form.get('yearsExperience')?.setValue(experience, { emitEvent: false });
+  //     console.log(this.form.get('yearsExperience').value);
 
 
-    }
-  }
+  //   }
+  // }
 
   populateForm(): void {
     if (this.targetEmployee) {
@@ -417,7 +433,6 @@ export class UserFormComponent implements OnInit {
 
       this.isPresent = !this.targetEmployee.experienceend;
       this.updateRateValidators();
-      this.calculateExperience();
 
       // Handle file upload if needed
       this.filesWithImages = this.targetEmployee.attachments.map(attachment => ({
@@ -544,4 +559,79 @@ hourlyRateValidator(): ValidatorFn {
       return age < minAge ? { underage: true } : null;
     };
   }
+
+
+  calculateExperience() {
+    const start = this.form.get('experienceStart')?.value;
+    const end = this.form.get('experienceEnd')?.value;
+ 
+    if (start && end) {
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+ 
+      if (startDate <= endDate) {
+        const diffInMs = endDate.getTime() - startDate.getTime();
+        const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+        const years = Math.floor(diffInDays / 365.25);
+        const months = Math.floor((diffInDays % 365.25) / 30.44);
+        const experienceString = `${years} Years ${months} Months`;
+ 
+        this.form.get('yearsExperience')?.setValue(experienceString);
+      } else {
+        this.form.get('yearsExperience')?.setValue('');
+      }
+    } else {
+      this.form.get('yearsExperience')?.setValue('');
+    }
+  }
+
+  emailValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      if (!value) return null; // Skip validation if the value is empty
+
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+      const valid = emailPattern.test(value);
+      return valid ? null : { invalidEmail: true };
+    };
+  }
+
+  // Custom name validator
+  noSpaceAtStartValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      if (!value) return null; // Skip validation if the value is empty
+
+      const startsWithSpace = /^\s/.test(value);
+      return startsWithSpace ? { startsWithSpace: true } : null;
+    };
+  }
+
+
+   experienceStartDateDobValidator(dobControlName: string): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const formGroup = control.parent as FormGroup;
+      if (!formGroup) return null;
+ 
+      const dob = new Date(formGroup.get(dobControlName)?.value);
+      const experienceStart = new Date(control.value);
+ 
+      if (!formGroup.get(dobControlName)?.value || !control.value) {
+        return null; // If one of the dates is missing, don't validate
+      }
+ 
+      const yearsDifference = experienceStart.getFullYear() - dob.getFullYear();
+      const monthDifference = experienceStart.getMonth() - dob.getMonth();
+      const dayDifference = experienceStart.getDate() - dob.getDate();
+ 
+      if (yearsDifference > 16 || (yearsDifference === 16 && monthDifference > 0) || (yearsDifference === 16 && monthDifference === 0 && dayDifference >= 0)) {
+        console.log('no');
+        return null; // Valid
+      } else {
+        console.log('yes');
+        return { experienceTooSoon: true }; // Invalid
+      }
+    };
+  
+}
 }

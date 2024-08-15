@@ -6,7 +6,16 @@ import { Employee } from '../Models/Employee';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PagenationComponent } from './pagenation/pagenation.component'; 
+import { ChangeDetectorRef } from '@angular/core';
 
+interface FileWithImage {
+  imageUrl: string | ArrayBuffer | null; // URL for image preview
+  file: File; // Original file
+  size: number; // Size of the file in bytes
+  name: string; // Name of the file
+  baseCode: string | null; // Base64 encoded string of the file
+  type: string; // MIME type of the file
+}
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -24,7 +33,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private searchTerms = new Subject<string>();
   private searchSubscription: any;
 
-  constructor(private myservice: UserServiceService, private myEmployeeService: EmployeeService) {}
+  constructor(private myservice: UserServiceService, private myEmployeeService: EmployeeService,   private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
 
@@ -167,4 +176,147 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     this.loadEmployees();
   }
+
+  
+
+  openAttachment(file: FileWithImage): void {
+    if (file.baseCode) {
+      const blob = this.base64ToBlob(file.baseCode, file.type);
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } else {
+      console.error('No base64 data available for this file.');
+    }
+  }
+
+  // Helper function to convert base64 to Blob
+  base64ToBlob(base64: string, mimeType: string): Blob {
+    const byteCharacters = atob(base64);
+    const byteArrays: Uint8Array[] = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    return new Blob(byteArrays, { type: mimeType });
+  }
+  
+
+
+
+
+
+
+  //  // Check if MIME type is an image
+  //  isImage(mimeType: string): boolean {
+  //   return mimeType.startsWith('image/');
+  // }
+  // imageUrl: string;
+
+  // updateImage() {
+  //   setTimeout(() => {
+  //     this.imageUrl = this.getImagePreviewUrl('base64String', 'image/png');
+  //   });
+  // }
+
+  // getImagePreviewUrl(baseCode: string, mimeType: string): string {
+  //   const base64Data = baseCode.replace(/^data:.*;base64,/, '');
+  //   const blob = this.base64ToBlob(base64Data, mimeType);
+  //   const url = URL.createObjectURL(blob);
+  //   return url;
+  // }
+
+  // base64ToBlob(base64Data: string, mimeType: string): Blob {
+  //   const byteCharacters = atob(base64Data);
+  //   const byteArrays = [];
+  //   for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+  //     const slice = byteCharacters.slice(offset, offset + 512);
+  //     const byteNumbers = new Array(slice.length);
+  //     for (let i = 0; i < slice.length; i++) {
+  //       byteNumbers[i] = slice.charCodeAt(i);
+  //     }
+  //     const byteArray = new Uint8Array(byteNumbers);
+  //     byteArrays.push(byteArray);
+  //   }
+  //   return new Blob(byteArrays, { type: mimeType });
+  // }
+
+  // // Open the attachment in a new tab
+  // openAttachment(file: FileWithImage): void {
+  //   if (file.baseCode) {
+  //     const base64Data = file.baseCode.replace(/^data:.*;base64,/, '');
+  //     const blob = this.base64ToBlob(base64Data, file.type);
+  //     const url = URL.createObjectURL(blob);
+  //     window.open(url, '_blank');
+
+  //     // Revoke the Blob URL to free up memory
+  //     URL.revokeObjectURL(url);
+  //   } else {
+  //     console.error('No base64 data available for this file.');
+  //   }
+  // }
+
+
+
+
+
+
+
+
+
+
+
+  //   isImage(mimeType: string): boolean {
+//     return mimeType.startsWith('image/');
+//   }
+
+// // Get the Blob URL for image preview
+// getImagePreviewUrl(baseCode: string, mimeType: string): string {
+//   const base64Data = baseCode.replace(/^data:.*;base64,/, '');
+//   const blob = this.base64ToBlob(base64Data, mimeType);
+//   const url = URL.createObjectURL(blob);
+//   this.cdr.detectChanges(); // Trigger change detection
+//   return url;
+// }
+
+//   // Convert base64 to Blob
+//   base64ToBlob(base64: string, mimeType: string): Blob {
+//     const byteCharacters = atob(base64);
+//     const byteArrays: Uint8Array[] = [];
+
+//     for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+//       const slice = byteCharacters.slice(offset, offset + 512);
+
+//       const byteNumbers = new Array(slice.length);
+//       for (let i = 0; i < slice.length; i++) {
+//         byteNumbers[i] = slice.charCodeAt(i);
+//       }
+
+//       const byteArray = new Uint8Array(byteNumbers);
+//       byteArrays.push(byteArray);
+//     }
+
+//     return new Blob(byteArrays, { type: mimeType });
+//   }
+
+//   // Open the attachment in a new tab
+//   openAttachment(file: FileWithImage): void {
+//     if (file.baseCode) {
+//       const blob = this.base64ToBlob(file.baseCode, file.type);
+//       const url = URL.createObjectURL(blob);
+//       window.open(url, '_blank');
+//     } else {
+//       console.error('No base64 data available for this file.');
+//     }
+//   }
+
+  
 }
